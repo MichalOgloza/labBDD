@@ -29,7 +29,7 @@ public class WhenCalculatingArrivalTimes {
 	private static ItineraryService itineraryService;
 	private static Line line;
 
-	private static final String lineName = "Line1";
+	private static final String lineName = "Line0";
 	private static final String lineStart = "Station0";
 	private static final String[] stations = {lineStart, "Station1", "Station2", "Station3"};
 
@@ -62,6 +62,24 @@ public class WhenCalculatingArrivalTimes {
 		List<LocalTime> results = itineraryService.findNextDepartures(departure, destination, startTime);
 
 		Assert.assertArrayEquals(expectedTimes.toArray(), results.toArray());
+	}
+
+	@Test
+	public void shouldReturnEmptyListOfArrivalTimes(){
+		when(timetableService.findLinesThrough(departure, destination)).thenReturn(Collections.singletonList(line));
+		when(timetableService.findArrivalTimes(line, departure)).thenReturn(createTimes("9:45", "10:16", "10:30"));
+
+		List<LocalTime> results = itineraryService.findNextDepartures(departure, destination, startTime);
+
+		Assert.assertTrue(results.isEmpty());
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void shouldThrowIllegalArgumentException() {
+		Line localLine = Line.named("Line1").departingFrom(lineStart);
+		when(timetableService.findLinesThrough(departure, destination)).thenReturn(Collections.singletonList(localLine));
+
+		itineraryService.findNextDepartures(departure, destination, startTime);
 	}
 
 	private List<LocalTime> createTimes(String ...times){
