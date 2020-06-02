@@ -10,11 +10,15 @@ import java.util.List;
 public class ItineraryService {
 	private TimetableService timetableService;
 	private Line line;
-	private final Minutes NEXT_MINUTES = Minutes.minutes(15);
+	private Minutes INTERVAL = Minutes.minutes(15);
 
 	public ItineraryService(Line line, TimetableService timetableService){
 		this.line = line;
 		this.timetableService = timetableService;
+	}
+
+	public void setInterval(int minutes){
+		this.INTERVAL = Minutes.minutes(minutes);
 	}
 
 	public void setLine(Line line) {
@@ -36,7 +40,7 @@ public class ItineraryService {
 	}
 
 	private boolean isInInterval(LocalTime startTime, LocalTime localTime){
-		return Minutes.minutesBetween(startTime, localTime).isLessThan(NEXT_MINUTES)
+		return Minutes.minutesBetween(startTime, localTime).isLessThan(INTERVAL)
 				&& startTime.isBefore(localTime);
 	}
 }

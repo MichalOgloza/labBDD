@@ -29,6 +29,7 @@ public class OptimalItinerarySteps {
 		trainTimes = timetableService.findArrivalTimes(currentLine, departure);
 		Assert.assertArrayEquals(trainTimes.toArray(), departureTimes.toArray());
 		itineraryService = new ItineraryService(currentLine, timetableService);
+		itineraryService.setInterval(30);
     }
 
     @Gdy("^chcę podróżować z \"([^\"]*)\" do \"([^\"]*)\" o (.*)$")
