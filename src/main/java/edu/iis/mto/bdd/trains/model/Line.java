@@ -36,7 +36,7 @@ public class Line {
     }
 
     public Line withStations(String... stations) {
-        return new Line(this.line, this.departingFrom, Arrays.asList(stations));
+        return new Line(this.line, this.departingFrom, ImmutableList.copyOf(stations));
     }
 
     public static LineBuilder named(String lineName) {
