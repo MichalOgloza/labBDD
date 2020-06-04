@@ -10,7 +10,7 @@ public class Guid implements IntineraryService {
 
     private TimetableService timetableService;
     // timeWindow in minutes
-    private int timeWindow;
+    private final int timeWindow;
 
     public Guid(TimetableService timetableService, int timeWindow) {
         this.timetableService = timetableService;
@@ -19,8 +19,6 @@ public class Guid implements IntineraryService {
 
     @Override
     public List<LocalTime> findNextDepartures(String departure, String destination, LocalTime startTime) {
-        // nie ma tego w wymaganiach ale wypisane pociągi nie powinny odjeżdżać później niż 15 minut po startTime
-
         List<Line> lines = timetableService.findLinesThrough(departure, destination);
         List<LocalTime> interestingDepartures = new ArrayList<>();
         List<LocalTime> allDepartures;
