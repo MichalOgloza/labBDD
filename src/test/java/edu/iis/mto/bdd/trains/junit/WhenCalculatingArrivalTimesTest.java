@@ -18,9 +18,10 @@ public class WhenCalculatingArrivalTimesTest {
     private final int STANDARD_INTERVAL = 15;
     private final int EXTENDED_INTERVAL = 30;
     private final int NEGATIVE_INTERVAL = -1;
-    private ItineraryService itineraryServiceToTest;
+
     @Mock
     private TimetableService timetableService;
+
     private Line testedLine;
     private JodaLocalTimeConverter converter;
 
@@ -45,7 +46,7 @@ public class WhenCalculatingArrivalTimesTest {
 
         Executable invalidCall = () -> itineraryService
                 .findNextDepartures("North Richmond", "Parramatta", converter.transform("08:29"));
-        
+
         assertThrows(NullPointerException.class, invalidCall);
     }
 
