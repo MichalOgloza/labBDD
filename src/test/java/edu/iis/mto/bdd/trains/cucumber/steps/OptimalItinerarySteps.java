@@ -4,9 +4,9 @@ import java.util.List;
 
 import edu.iis.mto.bdd.trains.model.Line;
 import edu.iis.mto.bdd.trains.services.InMemoryTimetableService;
+import edu.iis.mto.bdd.trains.services.ItineraryService;
 import org.joda.time.LocalTime;
 
-import cucumber.api.PendingException;
 import cucumber.api.Transform;
 import cucumber.api.java.pl.Gdy;
 import cucumber.api.java.pl.Wtedy;
@@ -28,7 +28,7 @@ public class OptimalItinerarySteps {
         var timeTableService = new InMemoryTimetableService();
         itineraryService = StandardItineraryService.builder()
                 .ofLine(trainLine)
-                .withService(timeTableService)
+                .withTimeTableService(timeTableService)
                 .withInterval(15)
                 .build();
 
