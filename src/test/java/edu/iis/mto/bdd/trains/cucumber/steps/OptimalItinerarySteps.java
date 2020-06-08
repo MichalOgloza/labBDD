@@ -23,7 +23,7 @@ public class OptimalItinerarySteps {
 
     @Zakładając("^pociągi linii \"(.*)\" z \"(.*)\" odjeżdżają ze stacji \"(.*)\" do \"(.*)\" o$")
     public void givenArrivingTrains(String line, String lineStart, String departure, String destination,
-            @Transform(JodaLocalTimeConverter.class) List<LocalTime> departureTimes) {
+                                    @Transform(JodaLocalTimeConverter.class) List<LocalTime> departureTimes) {
 
         var trainLine = Line.named(line).departingFrom(lineStart);
         var timeTableService = new InMemoryTimetableService();
@@ -35,14 +35,14 @@ public class OptimalItinerarySteps {
 
         //is context working?
         var computedDepartureTimes = timeTableService.findArrivalTimes(trainLine, departure);
-        assertThat(computedDepartureTimes, is(equalTo(departureTimes)));
         var linesCollection = timeTableService.findLinesThrough(departure, destination);
+        assertThat(computedDepartureTimes, is(equalTo(departureTimes)));
         assertThat(linesCollection, hasItem(trainLine));
     }
 
     @Gdy("^chcę podróżować z \"([^\"]*)\" do \"([^\"]*)\" o (.*)$")
     public void whenIWantToTravel(String departure, String destination,
-            @Transform(JodaLocalTimeConverter.class) LocalTime startTime) {
+                                  @Transform(JodaLocalTimeConverter.class) LocalTime startTime) {
         arrivalTimes = itineraryService.findNextDepartures(departure, destination, startTime);
     }
 
