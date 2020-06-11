@@ -23,6 +23,8 @@ public class WhenCalculatingArrivalTimesTest {
     private static final String THIS_PLACE_DOES_NOT_EXIST_TOO = "ThisPlaceDoesNotExistToo";
     public static final String EXAMPLE_TIME = "08:15";
     public static final String INVALID_TIME = "11:00";
+    public static final String DEPARTURE = "North Richmond";
+    public static final String DESTINATION = "Parramatta";
     private final int STANDARD_INTERVAL = 15;
     private final int EXTENDED_INTERVAL = 30;
     private final int NEGATIVE_INTERVAL = -1;
@@ -54,7 +56,7 @@ public class WhenCalculatingArrivalTimesTest {
                 .ofLine(testedLine).build();
 
         Executable invalidCall = () -> itineraryService
-                .findNextDepartures("North Richmond", "Parramatta", converter.transform(EXAMPLE_TIME));
+                .findNextDepartures(DEPARTURE, DESTINATION, converter.transform(EXAMPLE_TIME));
 
         assertThrows(NullPointerException.class, invalidCall);
     }
@@ -69,7 +71,7 @@ public class WhenCalculatingArrivalTimesTest {
                 .ofLine(testedLine).build();
 
         Executable invalidCall = () -> itineraryService
-                .findNextDepartures("North Richmond", "Parramatta", converter.transform(EXAMPLE_TIME));
+                .findNextDepartures(DEPARTURE, DESTINATION, converter.transform(EXAMPLE_TIME));
 
         assertThrows(NullPointerException.class, invalidCall);
     }
@@ -114,7 +116,7 @@ public class WhenCalculatingArrivalTimesTest {
     }
 
     @Test
-    public void ifForProvidedTimeDoesNotExistEmptyDepartureTimeListShouldBeReturned() {
+    public void ifForProvidedTimeDoesNotExistAnyArrivalTimeEmptyDepartureTimesListShouldBeReturned() {
         when(timetableService.findLinesThrough(Mockito.anyString(), Mockito.anyString())).thenReturn(Collections.singletonList(testedLine));
         when(timetableService.findArrivalTimes(Mockito.any(Line.class), Mockito.any())).thenReturn(exampleArrivalTimes());
         var itineraryService = StandardItineraryService.builder()
@@ -122,7 +124,7 @@ public class WhenCalculatingArrivalTimesTest {
                 .withTimeTableService(timetableService)
                 .ofLine(testedLine).build();
 
-        var departuresList = itineraryService.findNextDepartures(THIS_PLACE_DOES_NOT_EXIST, THIS_PLACE_DOES_NOT_EXIST_TOO, converter.transform(INVALID_TIME));
+        var departuresList = itineraryService.findNextDepartures(DEPARTURE, DESTINATION, converter.transform(INVALID_TIME));
         assertThat(departuresList, is(empty()));
     }
 
@@ -135,8 +137,49 @@ public class WhenCalculatingArrivalTimesTest {
                 .withTimeTableService(timetableService)
                 .ofLine(testedLine).build();
 
-        var departuresList = itineraryService.findNextDepartures(THIS_PLACE_DOES_NOT_EXIST, THIS_PLACE_DOES_NOT_EXIST_TOO, converter.transform(EXAMPLE_TIME));
+        var departuresList = itineraryService.findNextDepartures(DEPARTURE, DESTINATION, converter.transform(EXAMPLE_TIME));
         assertThat(departuresList, is(not(empty())));
+    }
+
+    @Test
+    public void ifProvidedStartTimeIsOneMinuteLaterThanTheLastAvailableDepartureEmptyListShouldBeReturned() {
+        when(timetableService.findLinesThrough(Mockito.anyString(), Mockito.anyString())).thenReturn(Collections.singletonList(testedLine));
+        when(timetableService.findArrivalTimes(Mockito.any(Line.class), Mockito.any())).thenReturn(exampleArrivalTimes());
+        var itineraryService = StandardItineraryService.builder()
+                .withInterval(STANDARD_INTERVAL)
+                .withTimeTableService(timetableService)
+                .ofLine(testedLine).build();
+
+        var departuresList = itineraryService.findNextDepartures(DEPARTURE, DESTINATION, converter.transform(EXAMPLE_TIME).plusMinutes(STANDARD_INTERVAL));
+        assertThat(departuresList, is(empty()));
+    }
+
+    @Test
+    public void ifProvidedStartTimeIsPeriodPlusOneMinuteBeforeTheFirstAvailableDepartureEmptyListShouldBeReturned() {
+        var firstArrival = exampleArrivalTimes().get(0);
+        when(timetableService.findLinesThrough(Mockito.anyString(), Mockito.anyString())).thenReturn(Collections.singletonList(testedLine));
+        when(timetableService.findArrivalTimes(Mockito.any(Line.class), Mockito.any())).thenReturn(exampleArrivalTimes());
+        var itineraryService = StandardItineraryService.builder()
+                .withInterval(STANDARD_INTERVAL)
+                .withTimeTableService(timetableService)
+                .ofLine(testedLine).build();
+        var departuresList = itineraryService.findNextDepartures(DEPARTURE, DESTINATION, firstArrival.minusMinutes(STANDARD_INTERVAL + 1));
+        assertThat(departuresList, is(empty()));
+    }
+
+    @Test
+    public void ifProvidedStartTimeIsPeriodMinusOneMinuteBeforeTheFirstAvailableDepartureOneElementListShouldBeReturned() {
+        var firstArrival = exampleArrivalTimes().get(0);
+        when(timetableService.findLinesThrough(Mockito.anyString(), Mockito.anyString())).thenReturn(Collections.singletonList(testedLine));
+        when(timetableService.findArrivalTimes(Mockito.any(Line.class), Mockito.any())).thenReturn(exampleArrivalTimes());
+        var itineraryService = StandardItineraryService.builder()
+                .withInterval(STANDARD_INTERVAL)
+                .withTimeTableService(timetableService)
+                .ofLine(testedLine).build();
+        var departuresList = itineraryService.findNextDepartures(DEPARTURE, DESTINATION, firstArrival.minusMinutes(STANDARD_INTERVAL - 1));
+        assertThat(departuresList, is(not(empty())));
+        assertThat(departuresList, hasSize(1));
+        assertThat(departuresList, hasItem(firstArrival));
     }
 
     private List<LocalTime> exampleArrivalTimes(){
