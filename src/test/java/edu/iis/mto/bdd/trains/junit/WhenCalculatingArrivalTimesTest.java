@@ -13,6 +13,8 @@ import org.mockito.Mockito;
 
 import java.util.*;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
@@ -92,10 +94,22 @@ public class WhenCalculatingArrivalTimesTest {
         var itineraryService = StandardItineraryService.builder()
                 .withInterval(STANDARD_INTERVAL)
                 .withTimeTableService(timetableService)
-
                 .ofLine(testedLine).build();
         itineraryService.findNextDepartures(THIS_PLACE_DOES_NOT_EXIST, THIS_PLACE_DOES_NOT_EXIST_TOO, converter.transform(EXAMPLE_TIME));
         verify(timetableService, times(1)).findArrivalTimes(testedLine, THIS_PLACE_DOES_NOT_EXIST_TOO);
+    }
+
+    @Test
+    public void ifArrivalTimesFromTimetableServiceAreEmptyFindNextDeparturesShouldReturnEmptyList() {
+        when(timetableService.findLinesThrough(Mockito.anyString(), Mockito.anyString())).thenReturn(Collections.singletonList(testedLine));
+        when(timetableService.findArrivalTimes(Mockito.any(Line.class), Mockito.any())).thenReturn(new LinkedList<LocalTime>());
+
+        var itineraryService = StandardItineraryService.builder()
+                .withInterval(STANDARD_INTERVAL)
+                .withTimeTableService(timetableService)
+                .ofLine(testedLine).build();
+        var departuresList = itineraryService.findNextDepartures(THIS_PLACE_DOES_NOT_EXIST, THIS_PLACE_DOES_NOT_EXIST_TOO, converter.transform(EXAMPLE_TIME));
+        assertThat(departuresList, is(empty()));
     }
 
     private List<LocalTime> exampleArrivalTimes(){
