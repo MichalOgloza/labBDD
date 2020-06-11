@@ -14,12 +14,16 @@ import org.mockito.Mockito;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class WhenCalculatingArrivalTimesTest {
+
+    private static final String THIS_PLACE_DOES_NOT_EXIST_TOO = "ThisPlaceDoesNotExistToo";
+    public static final String EXAMPLE_TIME = "08:29";
     private final int STANDARD_INTERVAL = 15;
     private final int EXTENDED_INTERVAL = 30;
     private final int NEGATIVE_INTERVAL = -1;
+    private final String THIS_PLACE_DOES_NOT_EXIST = "ThisPlaceDoesNotExists";
 
     private TimetableService timetableService;
 
@@ -47,7 +51,7 @@ public class WhenCalculatingArrivalTimesTest {
                 .ofLine(testedLine).build();
 
         Executable invalidCall = () -> itineraryService
-                .findNextDepartures("North Richmond", "Parramatta", converter.transform("08:29"));
+                .findNextDepartures("North Richmond", "Parramatta", converter.transform(EXAMPLE_TIME));
 
         assertThrows(NullPointerException.class, invalidCall);
     }
@@ -62,7 +66,7 @@ public class WhenCalculatingArrivalTimesTest {
                 .ofLine(testedLine).build();
 
         Executable invalidCall = () -> itineraryService
-                .findNextDepartures("North Richmond", "Parramatta", converter.transform("08:29"));
+                .findNextDepartures("North Richmond", "Parramatta", converter.transform(EXAMPLE_TIME));
 
         assertThrows(NullPointerException.class, invalidCall);
     }
@@ -76,14 +80,22 @@ public class WhenCalculatingArrivalTimesTest {
                 .ofLine(testedLine).build();
 
         Executable invalidCall = () -> itineraryService
-                .findNextDepartures("ThisPlaceDoesNotExist", "ThisPlaceDoesNotExistToo", converter.transform("08:29"));
+                .findNextDepartures(THIS_PLACE_DOES_NOT_EXIST, THIS_PLACE_DOES_NOT_EXIST_TOO, converter.transform(EXAMPLE_TIME));
 
         assertThrows(IllegalArgumentException.class, invalidCall);
     }
 
     @Test
     public void findArrivalTimesOfTimetableServiceShouldBeCalledOncePerFindNextDeparturesCall() {
+        when(timetableService.findLinesThrough(Mockito.anyString(), Mockito.anyString())).thenReturn(Collections.singletonList(testedLine));
+        when(timetableService.findArrivalTimes(Mockito.any(Line.class), Mockito.any())).thenReturn(exampleArrivalTimes());
+        var itineraryService = StandardItineraryService.builder()
+                .withInterval(STANDARD_INTERVAL)
+                .withTimeTableService(timetableService)
 
+                .ofLine(testedLine).build();
+        itineraryService.findNextDepartures(THIS_PLACE_DOES_NOT_EXIST, THIS_PLACE_DOES_NOT_EXIST_TOO, converter.transform(EXAMPLE_TIME));
+        verify(timetableService, times(1)).findArrivalTimes(testedLine, THIS_PLACE_DOES_NOT_EXIST_TOO);
     }
 
     private List<LocalTime> exampleArrivalTimes(){
