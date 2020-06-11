@@ -30,7 +30,7 @@ public class OptimalItinerarySteps {
         itineraryService = StandardItineraryService.builder()
                 .ofLine(trainLine)
                 .withTimeTableService(timeTableService)
-                .withInterval(15)
+                .withInterval(30)
                 .build();
 
         //is context working?
