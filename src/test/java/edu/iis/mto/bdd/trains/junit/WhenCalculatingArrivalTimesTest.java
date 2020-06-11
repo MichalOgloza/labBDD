@@ -143,6 +143,7 @@ public class WhenCalculatingArrivalTimesTest {
 
     @Test
     public void ifProvidedStartTimeIsOneMinuteLaterThanTheLastAvailableDepartureEmptyListShouldBeReturned() {
+        var lastArrival = exampleArrivalTimes().get(1);
         when(timetableService.findLinesThrough(Mockito.anyString(), Mockito.anyString())).thenReturn(Collections.singletonList(testedLine));
         when(timetableService.findArrivalTimes(Mockito.any(Line.class), Mockito.any())).thenReturn(exampleArrivalTimes());
         var itineraryService = StandardItineraryService.builder()
@@ -150,7 +151,7 @@ public class WhenCalculatingArrivalTimesTest {
                 .withTimeTableService(timetableService)
                 .ofLine(testedLine).build();
 
-        var departuresList = itineraryService.findNextDepartures(DEPARTURE, DESTINATION, converter.transform(EXAMPLE_TIME).plusMinutes(STANDARD_INTERVAL));
+        var departuresList = itineraryService.findNextDepartures(DEPARTURE, DESTINATION, lastArrival.plusMinutes(1));
         assertThat(departuresList, is(empty()));
     }
 
@@ -197,6 +198,21 @@ public class WhenCalculatingArrivalTimesTest {
         assertThat(departuresList, is(not(empty())));
         assertThat(departuresList, hasSize(1));
         assertThat(departuresList, hasItem(secondArrival));
+    }
+
+    @Test
+    public void ifProvidedIntervalIsLongerThenStartingFrom15minutesEarlierThanTheFirstArrivalTheResultListShouldContainAllAvailableDepartures() {
+        var expectedArrivalTimes = exampleArrivalTimes();
+        var firstArrival = expectedArrivalTimes.get(0);
+        when(timetableService.findLinesThrough(Mockito.anyString(), Mockito.anyString())).thenReturn(Collections.singletonList(testedLine));
+        when(timetableService.findArrivalTimes(Mockito.any(Line.class), Mockito.any())).thenReturn(exampleArrivalTimes());
+        var itineraryService = StandardItineraryService.builder()
+                .withInterval(EXTENDED_INTERVAL)
+                .withTimeTableService(timetableService)
+                .ofLine(testedLine).build();
+        var departuresList = itineraryService.findNextDepartures(DEPARTURE, DESTINATION, firstArrival.minusMinutes(STANDARD_INTERVAL));
+        assertThat(departuresList, is(not(empty())));
+        assertThat(departuresList, is(expectedArrivalTimes));
     }
 
     private List<LocalTime> exampleArrivalTimes(){
