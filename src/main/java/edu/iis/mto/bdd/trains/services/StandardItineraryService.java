@@ -30,7 +30,7 @@ public class StandardItineraryService implements ItineraryService {
         if(!lines.contains(trainLine))
             throw new IllegalArgumentException("Cannot prepare train's line itinerary for provided destination and departure station");
 
-        var arrivalTimes = timeTableService.findArrivalTimes(trainLine, destination);
-        return arrivalTimes.stream().filter(localTime -> startTime.compareTo(localTime) <= 0 && startTime.plusMinutes(minutes).compareTo(localTime) >= 0).collect(Collectors.toList());
+        var arrivalTimes = timeTableService.findArrivalTimes(trainLine, departure);
+        return arrivalTimes.stream().filter(localTime -> startTime.compareTo(localTime) < 0 && startTime.plusMinutes(minutes).compareTo(localTime) > 0).collect(Collectors.toList());
     }
 }

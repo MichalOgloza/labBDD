@@ -99,7 +99,7 @@ public class WhenCalculatingArrivalTimesTest {
                 .withTimeTableService(timetableService)
                 .ofLine(testedLine).build();
         itineraryService.findNextDepartures(THIS_PLACE_DOES_NOT_EXIST, THIS_PLACE_DOES_NOT_EXIST_TOO, converter.transform(EXAMPLE_TIME));
-        verify(timetableService, times(1)).findArrivalTimes(testedLine, THIS_PLACE_DOES_NOT_EXIST_TOO);
+        verify(timetableService, times(1)).findArrivalTimes(testedLine, THIS_PLACE_DOES_NOT_EXIST);
     }
 
     @Test
@@ -129,7 +129,7 @@ public class WhenCalculatingArrivalTimesTest {
     }
 
     @Test
-    public void ifForProvidedTimeDoesNotExistNotEmptyDepartureTimeListShouldBeReturned() {
+    public void ifForProvidedTimeExistSomeArrivalTimesNotEmptyDepartureTimeListShouldBeReturned() {
         when(timetableService.findLinesThrough(Mockito.anyString(), Mockito.anyString())).thenReturn(Collections.singletonList(testedLine));
         when(timetableService.findArrivalTimes(Mockito.any(Line.class), Mockito.any())).thenReturn(exampleArrivalTimes());
         var itineraryService = StandardItineraryService.builder()
@@ -180,6 +180,23 @@ public class WhenCalculatingArrivalTimesTest {
         assertThat(departuresList, is(not(empty())));
         assertThat(departuresList, hasSize(1));
         assertThat(departuresList, hasItem(firstArrival));
+    }
+
+    @Test
+    public void ifProvidedStartTimeIsOneMinuteAfterTheFirstAvailableDepartureOneElementListThatStoresTheTimeOfSecondArrivalShouldBeReturned() {
+        var arrivalTimes = exampleArrivalTimes();
+        var firstArrival = arrivalTimes.get(0);
+        var secondArrival = arrivalTimes.get(1);
+        when(timetableService.findLinesThrough(Mockito.anyString(), Mockito.anyString())).thenReturn(Collections.singletonList(testedLine));
+        when(timetableService.findArrivalTimes(Mockito.any(Line.class), Mockito.any())).thenReturn(exampleArrivalTimes());
+        var itineraryService = StandardItineraryService.builder()
+                .withInterval(STANDARD_INTERVAL)
+                .withTimeTableService(timetableService)
+                .ofLine(testedLine).build();
+        var departuresList = itineraryService.findNextDepartures(DEPARTURE, DESTINATION, firstArrival.plusMinutes(1));
+        assertThat(departuresList, is(not(empty())));
+        assertThat(departuresList, hasSize(1));
+        assertThat(departuresList, hasItem(secondArrival));
     }
 
     private List<LocalTime> exampleArrivalTimes(){
