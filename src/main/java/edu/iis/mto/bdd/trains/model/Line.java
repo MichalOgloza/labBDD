@@ -20,7 +20,7 @@ public class Line {
     private Line(String line, String departingFrom, List<String> stations) {
         this.line = line;
         this.departingFrom = departingFrom;
-        this.stations = stations;
+        this.stations = List.copyOf(stations);
     }
 
     public String getDepartingFrom() {

@@ -22,7 +22,8 @@ public class InMemoryTimetableService implements TimetableService {
 
     // All trains leave the depots at the same time.
     List<LocalTime> universalDepartureTimes = ImmutableList.of(new LocalTime(7, 53), new LocalTime(7, 55),
-            new LocalTime(7, 57), new LocalTime(8, 6), new LocalTime(8, 9), new LocalTime(8, 16));
+            new LocalTime(7, 57), new LocalTime(8, 6), new LocalTime(8, 9), new LocalTime(8, 16),
+            new LocalTime(8, 26), new LocalTime(8, 31));
 
     @Override
     public List<LocalTime> findArrivalTimes(Line line, String targetStation) {
