@@ -9,7 +9,7 @@ import java.util.List;
 public class DefaultIntineraryService implements IntineraryService {
 
     private TimetableService timetableService;
-    private static final int TIME_LIMIT = 15;
+    private static final int TIME_LIMIT = 30;
 
     public DefaultIntineraryService(TimetableService timetableService)
     {
