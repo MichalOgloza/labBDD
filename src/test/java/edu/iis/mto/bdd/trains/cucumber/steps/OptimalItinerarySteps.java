@@ -3,6 +3,7 @@ package edu.iis.mto.bdd.trains.cucumber.steps;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.iis.mto.bdd.trains.services.IntineraryService;
 import org.joda.time.LocalTime;
 
 import cucumber.api.PendingException;
@@ -15,6 +16,7 @@ import static org.junit.Assert.assertEquals;
 
 public class OptimalItinerarySteps {
 
+    private IntineraryService intineraryService;
     private List<LocalTime> trainTimes = new ArrayList<>();
 
     @Zakładając("^pociągi linii \"(.*)\" z \"(.*)\" odjeżdżają ze stacji \"(.*)\" do \"(.*)\" o$")
@@ -27,7 +29,7 @@ public class OptimalItinerarySteps {
     @Gdy("^chcę podróżować z \"([^\"]*)\" do \"([^\"]*)\" o (.*)$")
     public void whenIWantToTravel(String departure, String destination,
             @Transform(JodaLocalTimeConverter.class) LocalTime startTime) {
-        throw new PendingException();
+        trainTimes = intineraryService.findNextDepartures(departure, destination, startTime);
     }
 
     @Wtedy("^powinienem uzyskać informację o pociągach o:$")
