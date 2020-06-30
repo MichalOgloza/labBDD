@@ -87,7 +87,7 @@ public class WhenCalculatingArrivalTimes {
     {
         List<LocalTime> departures = new ArrayList<>();
         departures.add(new LocalTime(16, 25));
-        departures.add(new LocalTime(16, 35));
+        departures.add(new LocalTime(16, 50));
         departures.add(new LocalTime(17, 25));
         when(timetableServiceMock.findArrivalTimes(line, startStation)).thenReturn(departures);
 
