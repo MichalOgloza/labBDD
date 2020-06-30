@@ -3,6 +3,8 @@ package edu.iis.mto.bdd.trains.cucumber.steps;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.iis.mto.bdd.trains.services.DefaultIntineraryService;
+import edu.iis.mto.bdd.trains.services.InMemoryTimetableService;
 import edu.iis.mto.bdd.trains.services.IntineraryService;
 import org.joda.time.LocalTime;
 
@@ -22,7 +24,7 @@ public class OptimalItinerarySteps {
     @Zakładając("^pociągi linii \"(.*)\" z \"(.*)\" odjeżdżają ze stacji \"(.*)\" do \"(.*)\" o$")
     public void givenArrivingTrains(String line, String lineStart, String departure, String destination,
             @Transform(JodaLocalTimeConverter.class) List<LocalTime> departureTimes) {
-        throw new PendingException();
+        intineraryService = new DefaultIntineraryService(new InMemoryTimetableService());
 
     }
 
