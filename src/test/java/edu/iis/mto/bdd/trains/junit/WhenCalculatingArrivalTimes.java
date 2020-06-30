@@ -81,4 +81,17 @@ public class WhenCalculatingArrivalTimes {
         when(timetableServiceMock.findArrivalTimes(line, startStation)).thenReturn(departures);
         assertThat(intineraryService.findNextDepartures(startStation, endStation, startTime), is(equalTo(departures)));
     }
+
+    @Test
+    public void Departures15MinutesOrMoreAfterStartTimeShouldNotBeReturned()
+    {
+        List<LocalTime> departures = new ArrayList<>();
+        departures.add(new LocalTime(16, 25));
+        departures.add(new LocalTime(16, 35));
+        departures.add(new LocalTime(17, 25));
+        when(timetableServiceMock.findArrivalTimes(line, startStation)).thenReturn(departures);
+
+        List<LocalTime> result = new ArrayList<>(List.of(new LocalTime(16, 25)));
+        assertThat(intineraryService.findNextDepartures(startStation, endStation, startTime), is(equalTo(result)));
+    }
 }
